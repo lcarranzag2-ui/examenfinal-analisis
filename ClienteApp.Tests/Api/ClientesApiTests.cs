@@ -64,6 +64,79 @@ public class ClientesApiTests
             response.StatusCode);
     }
 
+    // ---------------------------------------------------------------
+    // Examen final - Pruebas de API para GET /api/Clientes/{id}
+    // ---------------------------------------------------------------
+
+    [Fact]
+    public async Task ObtenerPorId_ClienteExistente_DebeRetornar200()
+    {
+        // Arrange: cada factory usa una base temporal nueva (vacía),
+        // por eso primero se registra un cliente para que exista.
+        using var factory = new ClienteApiFactory();
+        using var client = factory.CreateClient();
+
+        var solicitud = new
+        {
+            Nombre = "Ana López",
+            Correo = $"ana_{Guid.NewGuid():N}@example.com"
+        };
+
+        var respuestaRegistro = await client.PostAsJsonAsync(
+            "/api/Clientes",
+            solicitud);
+
+        Assert.Equal(
+            HttpStatusCode.Created,
+            respuestaRegistro.StatusCode);
+
+        var clienteCreado = await respuestaRegistro.Content
+            .ReadFromJsonAsync<ClienteRespuesta>();
+
+        Assert.NotNull(clienteCreado);
+
+        // Act: consultar el cliente recién creado por su id.
+        var response = await client.GetAsync(
+            $"/api/Clientes/{clienteCreado.Id}");
+
+        // Assert: la API responde 200 OK con los datos del cliente.
+        Assert.Equal(
+            HttpStatusCode.OK,
+            response.StatusCode);
+
+        var cliente = await response.Content
+            .ReadFromJsonAsync<ClienteRespuesta>();
+
+        Assert.NotNull(cliente);
+        Assert.Equal(clienteCreado.Id, cliente.Id);
+        Assert.Equal(solicitud.Nombre, cliente.Nombre);
+        Assert.Equal(solicitud.Correo, cliente.Correo);
+    }
+
+    [Fact]
+    public async Task ObtenerPorId_ClienteInexistente_DebeRetornar404()
+    {
+        // Arrange: base temporal vacía, ningún cliente tiene este id.
+        using var factory = new ClienteApiFactory();
+        using var client = factory.CreateClient();
+
+        var idInexistente = 99999;
+
+        // Act
+        var response = await client.GetAsync(
+            $"/api/Clientes/{idInexistente}");
+
+        // Assert: la API responde 404 Not Found.
+        Assert.Equal(
+            HttpStatusCode.NotFound,
+            response.StatusCode);
+
+        // Se revisa el mensaje para confirmar que el 404 lo devolvió
+        // el controlador y no que la ruta no exista.
+        var contenido = await response.Content.ReadAsStringAsync();
+        Assert.Contains("Cliente no encontrado", contenido);
+    }
+
     private sealed record ClienteRespuesta(
         int Id,
         string Nombre,

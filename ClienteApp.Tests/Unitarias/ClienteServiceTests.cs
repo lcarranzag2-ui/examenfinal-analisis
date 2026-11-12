@@ -131,4 +131,39 @@ public class ClienteServiceTests
     }
 
 
+    // ---------------------------------------------------------------
+    // Examen final - Prueba unitaria de ObtenerPorId
+    // ---------------------------------------------------------------
+
+    [Fact]
+    public void ObtenerPorId_ClienteExistente_DebeRetornarClienteYConsultarRepositorioUnaVez()
+    {
+        // Arrange: el mock simula que el repositorio tiene al cliente con Id 1
+        var clienteEsperado = new Cliente
+        {
+            Id = 1,
+            Nombre = "Ana López",
+            Correo = "ana@example.com"
+        };
+
+        _repositoryMock
+            .Setup(r => r.ObtenerPorId(1))
+            .Returns(clienteEsperado);
+
+        // Act: ejecutar el método que probamos
+        var resultado = _service.ObtenerPorId(1);
+
+        // Assert: el servicio devuelve el mismo cliente que entregó el repositorio
+        Assert.NotNull(resultado);
+        Assert.Same(clienteEsperado, resultado);
+        Assert.Equal(1, resultado.Id);
+        Assert.Equal("Ana López", resultado.Nombre);
+        Assert.Equal("ana@example.com", resultado.Correo);
+
+        // Assert: el repositorio se consultó una sola vez y con el id correcto
+        _repositoryMock.Verify(
+            r => r.ObtenerPorId(1),
+            Times.Once);
+    }
+
 }

@@ -72,6 +72,27 @@ public class ClienteRepositoryTests : IDisposable
     }
 
 
+    [Fact]
+    public void ObtenerPorId_IdInexistente_DebeRetornarNull()
+    {
+        // Arrange: servicio real + repositorio real + SQLite temporal.
+        var service = new ClienteService(_repository);
+
+        // Se registra un cliente para que la base no esté vacía
+        // y así comprobar que de verdad busca por el id correcto.
+        var clienteRegistrado = service.Registrar(
+            "Ana López",
+            "ana@example.com");
+
+        var idInexistente = clienteRegistrado.Id + 1000;
+
+        // Act: consultar un id que no existe mediante el servicio.
+        var resultado = service.ObtenerPorId(idInexistente);
+
+        // Assert: no debe encontrar ningún cliente.
+        Assert.Null(resultado);
+    }
+
     public void Dispose()
     {
         if (File.Exists(_dbPath))

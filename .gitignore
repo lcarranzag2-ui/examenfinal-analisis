@@ -1,0 +1,16 @@
+# Compilación
+bin/
+obj/
+
+# Visual Studio / Rider / VS Code
+.vs/
+.idea/
+.vscode/
+
+# Resultados de pruebas
+TestResults/
+
+# Base de datos SQLite que se crea al ejecutar la API
+*.db
+*.db-shm
+*.db-wal
