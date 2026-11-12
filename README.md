@@ -41,17 +41,33 @@ Requisito: **.NET 10 SDK**.
 ```bash
 dotnet restore
 dotnet build
-dotnet test
-```
-
-Para ver el nombre de cada prueba en la consola:
-
-```bash
 dotnet test --logger "console;verbosity=detailed"
 ```
 
 Resultado esperado: **18 pruebas, 18 correctas, 0 fallidas** (14 que ya traía el proyecto + 4 nuevas).
 
+Las pruebas también se ejecutan automáticamente con **GitHub Actions** en cada push a `main`
+(archivo `.github/workflows/pruebas.yml`).
+
 ## Evidencias
 
-Las capturas de la ejecución están en la carpeta [`evidencias/`](evidencias/).
+Las capturas están en la carpeta [`evidencias/`](evidencias/).
+
+| Captura | Descripción |
+|---|---|
+| `00 pruebas originales del proyecto.png` | Proyecto original ejecutado en mi equipo: 14 pruebas correctas |
+| `01 actions exitosa.png` | Ejecución en GitHub Actions finalizada con éxito |
+| `02 pruebas parte1.png` | Detalle de la ejecución: prueba de integración y prueba unitaria nuevas aprobadas |
+| `03 pruebas parte 2.png` | Pruebas de API nuevas aprobadas: cliente existente (200 OK) y cliente inexistente (404 Not Found) |
+| `04 pruebas totales.png` | Resumen final: 18 pruebas en total, 18 correctas |
+| `05 bloqueo local de windows.png` | Error en mi equipo al cargar la DLL de pruebas (parte 1) |
+| `06 bloqueo local de windows.png` | Error en mi equipo al cargar la DLL de pruebas (parte 2) |
+
+### Nota sobre la ejecución
+
+En mi equipo el proyecto original corrió bien (14 pruebas). Al agregar las pruebas nuevas,
+Windows 11 bloqueó la DLL de pruebas con el error *"Una directiva de Control de aplicaciones
+bloqueó este archivo (0x800711C7)"*, causado por el **Control inteligente de aplicaciones**,
+que bloquea archivos sin firma digital. Para no desactivar esa protección, configuré
+**GitHub Actions** (`.github/workflows/pruebas.yml`), que compila y ejecuta todas las pruebas
+en un servidor Linux con .NET 10 cada vez que se hace push a `main`.
